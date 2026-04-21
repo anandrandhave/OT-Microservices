@@ -1,0 +1,41 @@
+// Use the name you configured in Jenkins Global Pipeline Libraries
+@Library('my-shared-library') _
+import com.helper.Deployer
+
+pipeline {
+    agent any
+    
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'prod'], description: 'Target Environment')
+    }
+
+    stages {
+        stage('Initialize Library') {
+            steps {
+                script {
+                    // Initialize the class from your src/ directory
+                    deployer = new Deployer(this)
+                }
+            }
+        }
+
+        stage('Deploy Microservice') {
+            steps {
+                script {
+                    echo "Starting deployment for Employee Service..."
+                    // Call the library methods
+                    deployer.validate(params.ENVIRONMENT)
+                    deployApp(params.ENVIRONMENT)
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            script {
+                deployer.rollback(params.ENVIRONMENT)
+            }
+        }
+    }
+}
