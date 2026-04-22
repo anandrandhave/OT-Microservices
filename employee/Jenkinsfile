@@ -1,8 +1,14 @@
-post {
-    failure {
+stage('Deploy Microservice') {
+    steps {
         script {
-            // Change "blue-green" to "canary" depending on your need
-            deployer.rollback(params.ENVIRONMENT, "blue-green")
+            echo "Starting deployment for Employee Service..."
+            deployer.validate(params.ENVIRONMENT)
+
+            // --- ADD THIS LINE ---
+            error "Simulating a deployment failure for rollback test!"
+            // ---------------------
+
+            deployApp(params.ENVIRONMENT)
         }
     }
 }
