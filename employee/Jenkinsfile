@@ -1,14 +1,19 @@
 stage('Deploy Microservice') {
-    steps {
-        script {
-            echo "Starting deployment for Employee Service..."
-            deployer.validate(params.ENVIRONMENT)
+            steps {
+                script {
+                    echo "Starting deployment for Employee Service..."
+                    // Call the library validation
+                    deployer.validate(params.ENVIRONMENT)
 
-            // --- ADD THIS LINE ---
-            error "Simulating a deployment failure for rollback test!"
-            // ---------------------
-
-            deployApp(params.ENVIRONMENT)
+                    // This is the "Trigger" for your rollback
+                    error "Simulating a deployment failure for rollback test!"
+                }
+            }
+        }
+post {
+        failure {
+            script {
+                deployer.rollback(params.ENVIRONMENT, "blue-green")
+            }
         }
     }
-}
